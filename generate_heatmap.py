@@ -1,10 +1,28 @@
 import numpy as np
 import numpy.random
 import matplotlib.pyplot as plt
+import matplotlib as m
 import process_data
 
 fixture_name = 'test_points/fixutre.xyz'
 plate_name = 'test_points/C3-69-12345-6-P21-1.xyz'
+
+# Generation Set up:
+# fixture.xyz
+# plates(dir) -> contains the measurements
+# | C3-......
+# | C3-....
+# | .........
+
+# Procedure
+# 1. open the fixture file and get the xyz values
+# 2. go to the plates directory
+#    for each file in plates:
+#      - get thickness
+#      - generate plot and save it in the plots directory
+#         - heatmap
+#         - historgram
+#      - process the data and save it as csv
 
 
 # get XYZ value from file
@@ -27,6 +45,8 @@ def get_xyz(filename):
 # end process_line()
 
 # get the thickness by subtracting plate and fixture
+# fixture: list containing the z values of the fixture
+# plate:   list containing the z values of the plate
 def get_thickness(fixture, plate):
     zippo = zip(fixture, plate)
     diff = []
@@ -34,6 +54,7 @@ def get_thickness(fixture, plate):
         diff.append(pi - fi)
     return diff
     # enf get_thickness()
+# end get_thickness()
 
 # Executing Function
 def generate_plot(fixture_name, plate_name):
@@ -63,9 +84,20 @@ def generate_plot(fixture_name, plate_name):
   lev = []
 
   # Graph
-  plt.contourf(X,Y,Z, cmap='jet')
-  plt.scatter(X, Y, marker=".", c='black')
+  # create a color mapping
+  cdict = {
+  'red'  :  ( (0.0, 0.25, .25), (0.02, .59, .59), (1., 1., 1.)),
+  'green':  ( (0.0, 0.0, 0.0), (0.02, .45, .45), (1., .97, .97)),
+  'blue' :  ( (0.0, 1.0, 1.0), (0.02, .75, .75), (1., 0.45, 0.45))
+  }
+  cm = m.colors.LinearSegmentedColormap('my_colormap', cdict, 1024)
+
+
+  cont = plt.contourf(X,Y,Z, cmap='jet', vmin=np.min(Z), vmax=np.max(Z))
+  plt.xlim(0, 280)
+  plt.ylim(0, 280)
   plt.colorbar(label='mm')
+  plt.scatter(X, Y, marker=".", c='black')
   plt.show()
 # end generate_plot()
 
