@@ -1,2 +1,2 @@
 # CMM_Reports
- python scripts for generating reports
+ PDF, csv and plots for the plates
