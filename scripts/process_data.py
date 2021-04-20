@@ -3,6 +3,28 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+'''
+
+
+
+
+
+
+
+
+
+DISCARD. The functions from this file have been moved to process_xyz
+
+
+
+
+
+
+
+
+
+'''
+
 # Main executing function that takes in the filename (or path) to the .xyz file and returns the z-values in a list
 # filename: name of the xyz file to process
 def process_line(filename):
@@ -25,7 +47,7 @@ def process_line(filename):
 # std:    the standard deviation of the thickness of the plate
 def write_to_csv(z_vals, avg, std):
   loc = 0
-  f = open('demp.csv', 'w')
+  f = open('demo.csv', 'w')
   for i in range(11):
     currline = ''
     for j in range(11):
@@ -51,7 +73,7 @@ def get_mean_std(fixture, plate):
   for fixture_i, plate_i in zip_obj:
     diff.append(float(plate_i) - float(fixture_i))
   return (diff, np.mean(diff), np.std(diff))
-  # get_mean_std()
+  # end get_mean_std()
 
 # Main executing function
 def run(fixture_name, plate_name):
@@ -75,4 +97,4 @@ def run(fixture_name, plate_name):
 
 fixture_name = 'test_points/fixutre.xyz'
 plate_name = 'test_points/C3-69-12345-6-P21-1.xyz'
-run(fixture_name, plate_name)
+# run(fixture_name, plate_name)

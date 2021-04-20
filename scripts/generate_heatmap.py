@@ -4,6 +4,28 @@ import matplotlib.pyplot as plt
 import matplotlib as m
 import process_data
 
+'''
+
+
+
+
+
+
+
+
+
+DISCARD. The functions from this file have been moved to process_xyz
+
+
+
+
+
+
+
+
+
+'''
+
 fixture_name = 'test_points/fixutre.xyz'
 plate_name = 'test_points/C3-69-12345-6-P21-1.xyz'
 
@@ -80,6 +102,8 @@ def generate_plot(fixture_name, plate_name):
   X = x.reshape(-1, cols)
   Y = y.reshape(-1, cols)
   Z = z.reshape(-1, cols)
+
+  print
 
   lev = []
 
