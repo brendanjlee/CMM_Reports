@@ -43,6 +43,7 @@ def get_thickness(fixture_z_list, plate_z_list):
     plate_z = (plate_i)
     fixtu_z = (fixture_i)
     thickness_list.append(plate_z - fixtu_z)
+  #print(thickness_list)
   return thickness_list
   # end get_thickness()
 
@@ -64,6 +65,7 @@ def get_stats(thickness_z_list):
 # Returns: nil
 def generate_csv(thickness_z_list, filename):
   loc = 0
+  #print("CSV Filename: {}\n".format(filename))
   f = open(filename, 'w')
   for i in range(11):
     currline = ''
@@ -124,6 +126,8 @@ def generate_plot(plate_x, plate_y, thickness_z_list, filename):
 # end generate_plot()
 
 # Takes in the filenames for the fixture and plate and generates both the csv and pdf of the thickness of plates
+#   fix_x, fix_y, fix_z = each is a list that contains xyz values of the fixture
+#   filename will be in format: C3-69-12345-6-P21-1.xyz
 #
 # Process function for each plate:
 # 1. extract values from fixture and plate:   extract_xyz()
@@ -131,22 +135,21 @@ def generate_plot(plate_x, plate_y, thickness_z_list, filename):
 # 3. Genearte a csv:                          generate_csv()
 #                                              - get_stat()
 # 4. Generate a graph                         generate_plot()
-def process_ind_plate(fix_x, fix_y, fix_z, plate_filename):
-  # 0. Get filename from plate
-  filename = (os.path.basename(plate_filename).split('.')[0])
-
+def process_ind_plate(fix_x, fix_y, fix_z, filename):
   # 1. Extract values from fixture and plate
-  #fix_x, fix_y, fix_z = extract_xyz(fixture_name)     # maybe do this outside since we need this just once?
-  plate_x, plate_y, plate_z = extract_xyz(plate_name)
+  plate_x, plate_y, plate_z = extract_xyz("../raw_xyz/" + filename) # ../raw_xyz/C3-69-12345-6-P21-1.xyz
 
   # 2. Get Thickness from the two measurement values
   thickness_z_list = get_thickness(fix_z, plate_z)
 
+  # 2.5 Strip the filename so there is only the actual name left
+  filename = filename.split('.')[0] # filename = C3-69-12345-6-P21-1 (no more extentio)
+
   # 3. Generate the CSV
-  generate_csv(thickness_z_list, "../outputs/" + filename + ".csv")
+  generate_csv(thickness_z_list, "../outputs/" + filename + ".csv") # ../outputs/C3-69-12345-6-P21-1.csv
 
   # 4. Generate the plot
-  generate_plot(plate_x, plate_y, thickness_z_list, "../outputs/" + filename + ".pdf")
+  generate_plot(plate_x, plate_y, thickness_z_list, "../outputs/" + filename + ".pdf") # ../outputs/C3-69-12345-6-P21-1.pdf
   # end process_plate()
 
 # Runner fuction. Calls process_ind_plate() for every .xyz file in the directory for the plates.
@@ -159,8 +162,8 @@ def process_all():
     if filename == '.DS_Store':
       continue
     print(filename)
-    process_ind_plate(fix_x, fix_y, fix_z, filename)
+    process_ind_plate(fix_x, fix_y, fix_z, "../raw_xyz/" + filename) # filename=C3-69-12345-6-P21-1.xyz
   # end process_all()
 
 # Test function
-#process_all()
+process_all()
