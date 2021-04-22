@@ -129,8 +129,8 @@ def generate_plot(plate_x, plate_y, thickness_z_list, filename):
 
   cm = m.colors.LinearSegmentedColormap('my_colormap', cdict, 1024)
 
-  cont = plt.contourf(X,Y,Z, cmap='jet', vmin=np.min(Z), vmax=np.max(Z))
-  #cont = plt.contourf(X,Y,Z, cmap='jet', vmin=0.17, vmax=0.23)
+  #cont = plt.contourf(X,Y,Z, cmap='jet', vmin=np.min(Z), vmax=np.max(Z))
+  cont = plt.contourf(X,Y,Z, cmap='jet', vmin=0.17, vmax=0.23)
   plt.xlim(0, 280)
   plt.ylim(0, 280)
   plt.colorbar(label='mm')
@@ -160,18 +160,22 @@ def generate_plot(plate_x, plate_y, thickness_z_list, filename):
 #                                              - get_stat()
 # 4. Generate a graph                         generate_plot()
 def process_ind_plate(fix_x, fix_y, fix_z, filename):
+  print("In IND_PLATE: {}".format(filename))
   # 1. Extract values from fixture and plate
-  plate_x, plate_y, plate_z = extract_xyz("../raw_xyz/" + filename) # ../raw_xyz/C3-69-12345-6-P21-1.xyz
+  plate_x, plate_y, plate_z = extract_xyz(filename) # ../raw_xyz/C3-69-12345-6-P21-1.xyz
+
   # 2. Get Thickness from the two measurement values
   thickness_z_list = get_thickness(fix_z, plate_z)
-  #print(thickness_z_list)
+
   # 2.5 Strip the filename so there is only the actual name left
   filename = os.path.splitext(filename)[0] # filename = C3-69-12345-6-P21-1 -> C3-69-12345-6-P21-1 (no more extentio)
   filename = os.path.basename(filename)
+  print(filename)
   # 3. Generate the CSV
-  generate_csv(thickness_z_list, "../outputs/" + filename + ".csv") # ../outputs/C3-69-12345-6-P21-1.csv
+  generate_csv(thickness_z_list, g_output_path + '/' + filename + ".csv") # ../outputs/C3-69-12345-6-P21-1.csv
+
   # 4. Generate the plot
-  generate_plot(plate_x, plate_y, thickness_z_list, "../outputs/" + filename) # + ".pdf") # ../outputs/C3-69-12345-6-P21-1.pdf
+  generate_plot(plate_x, plate_y, thickness_z_list, g_output_path + '/' + filename) # ../outputs/C3-69-12345-6-P21-1.pdf
   # end process_plate()
 
 def generate_pdf(filename):
@@ -180,7 +184,17 @@ def generate_pdf(filename):
   histo_name = filename + ".png"
   report_name = filename + ".pdf"
 
-  can = canvas.Canvas('../reports/' + report_name, pagesize=letter) # 612, 792
+  csv_fullpath = g_output_path + '/' + filename + '.csv' # change for windows
+  heatmap_fullpath = g_output_path + '/' + filename + '_heatmap.png'
+  histo_fullpath = g_output_path + '/' + filename + '.png'
+  report_fullpath = g_report_path + '/' + filename + '.pdf'
+  print('Report (csv fullpath):{}'.format(csv_fullpath))
+  print('Report (heatmat fullpath):{}'.format(heatmap_fullpath))
+  print('Report (hisogram fullpath):{}'.format(histo_fullpath))
+  print('Report (report fullpath):{}'.format(report_fullpath))
+
+  #can = canvas.Canvas('../reports/' + report_name, pagesize=letter) # 612, 792
+  can = canvas.Canvas(report_fullpath, pagesize=letter)
   w, h = letter
   left_margin = inch
 
@@ -211,7 +225,7 @@ def generate_pdf(filename):
   can.drawString(left_margin, 650, today)
 
   # Write Name
-  can.drawString(left_margin, 630, "Langdon Felter-CMSC")
+  can.drawString(left_margin, 630, scanner_name)
 
   # Write layup
   can.drawString(left_margin, 600, 'The plate was laid up and cured and post cured as per the manufacturer recommended procedure.')
@@ -222,20 +236,19 @@ def generate_pdf(filename):
   can.drawString(left_margin, 550, "Units in mm")
 
   # Enter heatmap
-  im = Image.open('../outputs/' + heatmap_name)
+  im = Image.open(heatmap_fullpath)
   can.drawInlineImage(im, 40, 300, 300, 230)
 
   # Enter Histogram
-  im = Image.open('../outputs/' + histo_name)
+  im = Image.open(histo_fullpath)
   can.drawInlineImage(im, w/2, 300, 230, 230)
 
   # Statistics
   can.setFont('Times-Bold', 14)
-  #can.drawCentredString(w/2, 260, "Statistics")
   can.drawString(left_margin, 260, "Statistics")
 
   # Print table by getting values from file
-  f = open('../outputs/' + csv_name, 'r')
+  f = open(csv_fullpath, 'r')
   avg = 0.0
   std = 0.0
   for line in f.readlines():
@@ -269,7 +282,7 @@ def generate_pdf(filename):
   can.drawCentredString(w/2, 700, "Units in mm")
 
   # Get table
-  with open('../outputs/' + csv_name, 'r') as read_obj:
+  with open(csv_fullpath, 'r') as read_obj:
     csv_reader = reader(read_obj)
     values = list(csv_reader)
     values = values[:len(values) - 2]
@@ -282,7 +295,6 @@ def generate_pdf(filename):
     t.drawOn(can, 110, h/2)
 
   can.save()
-
 
 # Runner fuction. Calls process_ind_plate() for every .xyz file in the directory for the plates.
 # The path to the fixutre.xyz is hardcoded and may need changing to run on local enviroments. We take this once
@@ -300,5 +312,39 @@ def process_all():
     generate_pdf(os.path.splitext(filename)[0])
   # end process_all()
 
+# Allows you to run the above function from the GUI
+def run_from_gui(fixture_path, raw_xyz_path, output_path, report_path, name):
+  # Create Global
+  global g_fixture_path
+  g_fixture_path = fixture_path
+  global g_raw_xyz_path
+  g_raw_xyz_path = raw_xyz_path
+  global g_output_path
+  g_output_path = output_path
+  global g_report_path
+  g_report_path = report_path
+  global scanner_name
+  scanner_name = name
+
+  (fix_x, fix_y, fix_z) = extract_xyz(fixture_path)
+
+  # Iterate through the files
+  for filename in os.listdir(raw_xyz_path):
+    if filename == '.DS_Store' or filename == 'fixture.xyz':
+      continue
+    print('Processing: {}'.format(os.path.splitext(filename)[0]))
+    process_ind_plate(fix_x, fix_y, fix_z, raw_xyz_path + '/' + filename) # change for windows
+    generate_pdf(os.path.splitext(filename)[0])
+
+'''
 # Test function
-process_all()
+#process_all()
+
+Fixture_Location='/Users/brendanlee/Desktop/CSMC/CMM/CMM_Reports/raw_xyz/fixture.xyz'
+Plate_Directory='/Users/brendanlee/Desktop/CSMC/CMM/CMM_Reports/raw_xyz'
+Output_Directory='/Users/brendanlee/Desktop/CSMC/CMM/CMM_Reports/output2'
+Report_Output_Directory='/Users/brendanlee/Desktop/CSMC/CMM/CMM_Reports/reports2'
+name = 'Brendan lee'
+
+run_from_gui(Fixture_Location, Plate_Directory, Output_Directory, Report_Output_Directory, name)
+'''
