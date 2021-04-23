@@ -14,11 +14,22 @@ pip install numpy
 ### Packges
 Import these packages 
 ```python
-import os
+import os, sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as m
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from PIL import Image
+from datetime import date
+from csv import reader
+from reportlab.lib.units import inch
+from __main__ import *
+import tkinter as tk
+from tkinter.filedialog import asksaveasfile
 ```
 
 ## Usage
