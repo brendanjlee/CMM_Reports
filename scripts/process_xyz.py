@@ -39,7 +39,7 @@ def extract_xyz(filename):
         x_list.append(float(line[0]))
         y_list.append(float(line[1]))
         z_list.append(float(line[2]))
-  except FileNotFoundError as e:
+  except IOError as e:
     print(e)
   return x_list, y_list, z_list
   # end process_xyz()
@@ -179,11 +179,6 @@ def process_ind_plate(fix_x, fix_y, fix_z, filename):
   # end process_plate()
 
 def generate_pdf(filename):
-  csv_name = filename + ".csv"
-  heatmap_name = filename + "_heatmap.png"
-  histo_name = filename + ".png"
-  report_name = filename + ".pdf"
-
   csv_fullpath = g_output_path + '/' + filename + '.csv' # change for windows
   heatmap_fullpath = g_output_path + '/' + filename + '_heatmap.png'
   histo_fullpath = g_output_path + '/' + filename + '.png'
@@ -225,7 +220,7 @@ def generate_pdf(filename):
   can.drawString(left_margin, 650, today)
 
   # Write Name
-  can.drawString(left_margin, 630, scanner_name)
+  can.drawString(left_margin, 630, scanner_name) # 
 
   # Write layup
   can.drawString(left_margin, 600, 'The plate was laid up and cured and post cured as per the manufacturer recommended procedure.')
@@ -237,7 +232,7 @@ def generate_pdf(filename):
 
   # Enter heatmap
   im = Image.open(heatmap_fullpath)
-  can.drawInlineImage(im, 40, 300, 300, 230)
+  can.drawInlineImage(im, 40, 300, 280, 210)
 
   # Enter Histogram
   im = Image.open(histo_fullpath)
@@ -333,18 +328,13 @@ def run_from_gui(fixture_path, raw_xyz_path, output_path, report_path, name):
     if filename == '.DS_Store' or filename == 'fixture.xyz':
       continue
     print('Processing: {}'.format(os.path.splitext(filename)[0]))
-    process_ind_plate(fix_x, fix_y, fix_z, raw_xyz_path + '/' + filename) # change for windows
+    print('Testing for rawpath={}'.format(raw_xyz_path))
+    print('Testing for filename={}'.format(filename))
+    concatstring = raw_xyz_path + '/'
+    concatstring += filename
+    print('Testing for concatstring={}'.format(concatstring))
+
+
+    #process_ind_plate(fix_x, fix_y, fix_z, raw_xyz_path + '/' + filename) # change for windows
+    process_ind_plate(fix_x, fix_y, fix_z, concatstring)
     generate_pdf(os.path.splitext(filename)[0])
-
-'''
-# Test function
-#process_all()
-
-Fixture_Location='/Users/brendanlee/Desktop/CSMC/CMM/CMM_Reports/raw_xyz/fixture.xyz'
-Plate_Directory='/Users/brendanlee/Desktop/CSMC/CMM/CMM_Reports/raw_xyz'
-Output_Directory='/Users/brendanlee/Desktop/CSMC/CMM/CMM_Reports/output2'
-Report_Output_Directory='/Users/brendanlee/Desktop/CSMC/CMM/CMM_Reports/reports2'
-name = 'Brendan lee'
-
-run_from_gui(Fixture_Location, Plate_Directory, Output_Directory, Report_Output_Directory, name)
-'''

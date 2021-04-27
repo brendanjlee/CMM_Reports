@@ -13,7 +13,7 @@ class reportGenerator(tk.Frame):
         self.initialize_user_interface()
 
     def initialize_user_interface(self):
-        self.parent.geometry("500x500")  # the size of the canvas
+        self.parent.geometry("700x500")  # the size of the canvas
         self.parent.title("Report Generator for Flatplates")
 
         # Title Label
@@ -25,7 +25,7 @@ class reportGenerator(tk.Frame):
         self.name_lab = tk.Label(self.parent, text="Name of Person Scanning:", fg='black', relief='sunken', font=('Helvetica', '14', 'bold'))
         self.name_lab.place(x=10, y=50)
         self.name_param = tk.Entry(self.parent)
-        self.name_param.place(x=240, y=50)
+        self.name_param.place(x=300, y=50)
 
         # Ask for fixture path
         self.fixture_lab = tk.Label(self.parent, text='1. Get the location of the fixutre file (in .xyz format)', fg='black', relief='sunken', font=('Helvetica', '14', 'bold'))
@@ -33,7 +33,7 @@ class reportGenerator(tk.Frame):
         # Fixture path button
         global fixture_button
         fixture_button = tk.Button(self.parent, text='Find Fixutre', fg='black', bg='green', relief="ridge", font=("Helvetica", "14", "bold"), command=self.get_fixture_loc)
-        fixture_button.place(x=360, y=85)
+        fixture_button.place(x=500, y=85)
 
         # Ask for path of raw files
         self.plates_label = tk.Label(self.parent, text='2. Get the folder location of the .xyz files of plates', fg='black', relief='sunken', font=('Helvetica', '14', 'bold'))
@@ -41,7 +41,7 @@ class reportGenerator(tk.Frame):
         # Plate path button
         global plates_button
         plates_button = tk.Button(self.parent, text='Find', fg='black', bg='green', relief="ridge", font=("Helvetica", "14", "bold"), command=self.get_plate_loc)
-        plates_button.place(x=360, y=130)
+        plates_button.place(x=500, y=130)
 
         # Ask for output directory
         self.output_label = tk.Label(self.parent, text='3. Select Folder to save outputs to', fg='black', relief='sunken', font=('Helvetica', '14', 'bold'))
@@ -82,7 +82,7 @@ class reportGenerator(tk.Frame):
       print('Report Output Directory={}'.format(self.report_path))
 
     def generate(self):
-      process_xyz.run_from_gui(self.fixture_path, self.raw_plate_path, self.output_path, self.get_report_path, self.name_param)
+      process_xyz.run_from_gui(self.fixture_path, self.raw_plate_path, self.output_path, self.report_path, self.name_param.get())
 
 if __name__ == '__main__':
     root = tk.Tk()
