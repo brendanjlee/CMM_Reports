@@ -128,16 +128,7 @@ def generate_plot(plate_x, plate_y, thickness_z_list, filename):
     Z = z.reshape(-1, cols)
 
     # Generate Heatmap
-    cdict = {
-        'red':  ((0.0, 0.25, .25), (0.02, .59, .59), (1., 1., 1.)),
-        'green':  ((0.0, 0.0, 0.0), (0.02, .45, .45), (1., .97, .97)),
-        'blue':  ((0.0, 1.0, 1.0), (0.02, .75, .75), (1., 0.45, 0.45))
-    }
-
-    cm = m.colors.LinearSegmentedColormap('my_colormap', cdict, 1024)
-
-    #cont = plt.contourf(X,Y,Z, cmap='jet', vmin=np.min(Z), vmax=np.max(Z))
-    cont = plt.contourf(X, Y, Z, cmap='jet', vmin=0.17, vmax=0.23)
+    cont = plt.contourf(X,Y,Z, cmap='jet', vmin=np.min(Z), vmax=np.max(Z))
     plt.xlim(0, 280)
     plt.ylim(0, 280)
     plt.colorbar(label='mm')
