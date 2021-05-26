@@ -16,8 +16,13 @@ import tkinter as tk
 from tkinter.filedialog import asksaveasfile
 from tkinter import messagebox
 
-# This function is for retrieving the path of files
 def resource_path(relative_path):
+    ''' Return the relative path of the file
+
+        param relative_path:  the pathname to file (str)
+        type relative_path:  string
+        rtype: string
+    '''
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, relative_path)
 
@@ -25,12 +30,13 @@ def resource_path(relative_path):
 
 ### process ###
 
-# Process the individual .xyz file and returns a list of xyz tuple values
-#   filename: name of the .xyz file to be processed
-#
-# Returns:
-#   xyz_list: list of tuples containing (x,y,z) values
 def extract_xyz(filename):
+    ''' Return a list of tuples containing (x,y,z) values
+
+        param filename: name of the .xyz file
+        type filename: string
+        rtype: list of tuples of floats
+    '''
     xyz_list = []
     x_list = []
     y_list = []
@@ -49,14 +55,16 @@ def extract_xyz(filename):
     return x_list, y_list, z_list
     # end process_xyz()
 
-# Calculate the difference, mean and std of the plates using the measurements
-# of the fixture and the plate
-#   fixture_z_list: list containing the z-values of the fixture
-#   plate_z_list:   list containing the z-values of the plate
-#
-# Returns:
-#   thickness_list: a list of z-values for thickness of the plate
 def get_thickness(fixture_z_list, plate_z_list):
+    ''' Return a list of z-values representing the thickness of the plates at
+        each coordinate
+
+        param fixture_z_list: list of floats containing the z-value of fixtures
+        type fixture_z_list:  list
+        param plate_z_list:   list of floats containing the z-values of a plate
+        type plate_z_list:    list
+        rtype:                list
+    '''
     thickness_list = []
     zip_obj = zip(fixture_z_list, plate_z_list)
     for fixture_i, plate_i in zip_obj:
@@ -203,19 +211,19 @@ def generate_pdf(filename):
     can.drawString(left_margin, 680, "Report on {}".format(filename))
 
     # Purdue Logo
-    im = Image.open(resource_path('purdue_logo.png'))
+    im = Image.open(resource_path('logos/purdue_logo.png'))
     can.drawInlineImage(im, 20, 740, width=100.44, height=30)
 
     # Fermi Logo
-    im = Image.open(resource_path('fermi_logo.png'))
+    im = Image.open(resource_path('logos/fermi_logo.png'))
     can.drawInlineImage(im, 173, 740, width=100, height=41)
 
     # CMS Logo
-    im = Image.open(resource_path('cms_logo.png'))
+    im = Image.open(resource_path('logos/cms_logo.png'))
     can.drawInlineImage(im, 326, 720, width=70, height=70)
 
     # CMSC Logo
-    im = Image.open(resource_path('cmsc_logo.png'))
+    im = Image.open(resource_path('logos/cmsc_logo.png'))
     can.drawInlineImage(im, 461, 720, width=90, height=90)
 
     # Write Date
@@ -443,3 +451,6 @@ def main():
     root = tk.Tk()
     run = reportGenerator(root)
     root.mainloop()
+
+#im = Image.open(resource_path('logos/purdue_logo.png'))
+#print('hello')
