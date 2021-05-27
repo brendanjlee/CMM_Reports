@@ -225,19 +225,19 @@ def generate_pdf(filename):
     can.drawString(left_margin, 680, "Report on {}".format(filename))
 
     # Purdue Logo
-    im = Image.open(resource_path('logos/purdue_logo.png'))
+    im = Image.open(resource_path('purdue_logo.png'))
     can.drawInlineImage(im, 20, 740, width=100.44, height=30)
 
     # Fermi Logo
-    im = Image.open(resource_path('logos/fermi_logo.png'))
+    im = Image.open(resource_path('fermi_logo.png'))
     can.drawInlineImage(im, 173, 740, width=100, height=41)
 
     # CMS Logo
-    im = Image.open(resource_path('logos/cms_logo.png'))
+    im = Image.open(resource_path('cms_logo.png'))
     can.drawInlineImage(im, 326, 720, width=70, height=70)
 
     # CMSC Logo
-    im = Image.open(resource_path('logos/cmsc_logo.png'))
+    im = Image.open(resource_path('cmsc_logo.png'))
     can.drawInlineImage(im, 461, 720, width=90, height=90)
 
     # Write Date
