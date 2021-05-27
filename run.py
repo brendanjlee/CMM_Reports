@@ -367,7 +367,7 @@ def run_from_gui(fixture_path, raw_xyz_path, output_path, report_path, name):
         # process_ind_plate(fix_x, fix_y, fix_z, raw_xyz_path + '/' + filename) # change for windows
         process_ind_plate(fix_x, fix_y, fix_z, concatstring)
         generate_pdf(os.path.splitext(filename)[0])
-
+# run_from_gui()
 
 # GUI
 class reportGenerator(tk.Frame):
