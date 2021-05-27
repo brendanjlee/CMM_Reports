@@ -74,13 +74,14 @@ def get_thickness(fixture_z_list, plate_z_list):
     return thickness_list
     # end get_thickness()
 
-# Calculates and returns the mean and stdev of the plate thickness
-#   thickness_z_list: list containing the z-values for plate thickness
-#
-# Returns:
-#   float(mean thickness)
-#   float(stdev thickness)
+
 def get_stats(thickness_z_list):
+    ''' Returns the mean thickness and standard deviation of the current plate
+
+        param: thickess_z_list: list of floats returned from get_thickness()
+        type:  thickness_z_list: list of floats
+        rtype: (float, float)
+    '''
     return (np.mean(thickness_z_list), np.std(thickness_z_list))
     # end get_stats()
 
@@ -92,6 +93,12 @@ def get_stats(thickness_z_list):
 #
 # Returns: nil
 def generate_csv(thickness_z_list, filename):
+    ''' Return None
+        Generates a csv file with the given thickness list of z values.
+        Names the csv file with filename.
+
+        param thickness_z_list:
+    '''
     loc = 0
     f = open(filename, 'w')
     for i in range(11):
