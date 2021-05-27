@@ -1,10 +1,8 @@
 import os
 import sys
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib as m
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -13,16 +11,18 @@ from datetime import date
 from csv import reader
 from reportlab.lib.units import inch
 import tkinter as tk
-from tkinter.filedialog import asksaveasfile
+from tkinter import filedialog
 from tkinter import messagebox
 
 def resource_path(relative_path):
-    ''' Return the relative path of the file
+    """Gets the relative path of a file
 
-        param relative_path:  the pathname to file (str)
-        type relative_path:  string
-        rtype: string
-    '''
+    Args:
+        relative_path (str): path to the file
+
+    Returns:
+        str: the full path of the file that was passed in
+    """
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, relative_path)
 
@@ -31,12 +31,15 @@ def resource_path(relative_path):
 ### process ###
 
 def extract_xyz(filename):
-    ''' Return a list of tuples containing (x,y,z) values
+    """Get xyz values from the .xyz file
 
-        param filename: name of the .xyz file
-        type filename: string
-        rtype: list of tuples of floats
-    '''
+    Args:
+        filename (str): name of the .xyz file to be extracted
+
+    Returns:
+        tuple of list of float: the x,y coordinates and the z value representing
+        the thickness of the plate
+    """
     xyz_list = []
     x_list = []
     y_list = []
@@ -53,18 +56,20 @@ def extract_xyz(filename):
     except IOError as e:
         print(e)
     return x_list, y_list, z_list
-    # end process_xyz()
+# end process_xyz()
 
 def get_thickness(fixture_z_list, plate_z_list):
-    ''' Return a list of z-values representing the thickness of the plates at
-        each coordinate
+    """Calculate the thickness of a plate by subtracting the z value of the
+    plate with the z value of the fixture
 
-        param fixture_z_list: list of floats containing the z-value of fixtures
-        type fixture_z_list:  list
-        param plate_z_list:   list of floats containing the z-values of a plate
-        type plate_z_list:    list
-        rtype:                list
-    '''
+    Args:
+        fixture_z_list (list of float): z values of the fixture
+        plate_z_list (list of float): z values of the plate
+
+    Returns:
+        list of float: list of z values that represent the thickness of the
+        plate
+    """
     thickness_list = []
     zip_obj = zip(fixture_z_list, plate_z_list)
     for fixture_i, plate_i in zip_obj:
@@ -72,33 +77,31 @@ def get_thickness(fixture_z_list, plate_z_list):
         (fixtu_z) = (fixture_i)
         thickness_list.append(plate_z - fixtu_z)
     return thickness_list
-    # end get_thickness()
+# end get_thickness()
 
 
 def get_stats(thickness_z_list):
-    ''' Returns the mean thickness and standard deviation of the current plate
+    """Calculates the mean and standard deviation of the plate thickness
 
-        param: thickess_z_list: list of floats returned from get_thickness()
-        type:  thickness_z_list: list of floats
-        rtype: (float, float)
-    '''
+    Args:
+        thickness_z_list (list of float): list of z values representing the
+        thickness of the plate
+
+    Returns:
+        tuple of float: a tuple of avg and standard deviation
+    """
     return (np.mean(thickness_z_list), np.std(thickness_z_list))
-    # end get_stats()
+# end get_stats()
 
-# Generates a csv file with the given thickness list of z values.Names the
-# csv file with filename
-# thickness_list: list of just z-values that for the thickness of the plate
-# filename:       name of the file
-#   eg: C3-69-12345-6-P21-1.csv
-#
-# Returns: nil
 def generate_csv(thickness_z_list, filename):
-    ''' Return None
-        Generates a csv file with the given thickness list of z values.
-        Names the csv file with filename.
+    """Generates a csv file with the given thickness list of z values and saves
+    the csv to the filename
 
-        param thickness_z_list:
-    '''
+    Args:
+        thickness_z_list (list of float): list of z-values representing plate
+        thickness
+        filename (str): filename to save to
+    """
     loc = 0
     f = open(filename, 'w')
     for i in range(11):
@@ -114,21 +117,23 @@ def generate_csv(thickness_z_list, filename):
         f.write(currline)
         # end for i
     (avg, std) = get_stats(thickness_z_list)
-    curr_avg = avg
-    curr_std = std
     f.write('Thickness_Mean, {}\n'.format(avg))
     f.write('Thickness_StdDev, {}\n'.format(std))
     f.close()
-    # end generate_csv()
+# end generate_csv()
 
-# Generates a plot from the given measurements and saves it to filename
-#   plate_x: list of x values of the plate
-#   plate_y: list of y values of the plate
-#   thickness_z_list: list of z-values for the thickness of the plate
-#   filename: string that is the filename
-#
-# Returns: nil. Saves a pdf plot with filename.
 def generate_plot(plate_x, plate_y, thickness_z_list, filename):
+    """Generates a plot from the give measurements and saves it to filename.
+    Saves two graphs:
+        1. heatmap:   filename_heatmap.png
+        2. histogram: filename.png
+
+    Args:
+        plate_x (list of float): x coordinates of the plate
+        plate_y (list of float): y coordinates of the plate
+        thickness_z_list (list of float): z-values representing plate thickness
+        filename (str): filename to save to
+    """
     # Convert to np array from list
     x = np.asarray(plate_x)
     y = np.asarray(plate_y)
@@ -160,21 +165,20 @@ def generate_plot(plate_x, plate_y, thickness_z_list, filename):
     plt.title('Distribition of Thickness')
     plt.savefig(filename + ".png")
     plt.clf()
-    # end generate_plot()
+# end generate_plot()
 
-# Takes in the filenames for the fixture and plate and generates both the csv
-# and pdf of the thickness of plates
-#   fix_x, fix_y, fix_z = each is a list containing xyz values of the fixture
-#   filename will be in format: C3-69-12345-6-P21-1.xyz
-#
-# Process function for each plate:
-# 1. extract values from fixture and plate:   extract_xyz()
-# 2. Get thickness from the two measurements: get_thickness()
-# 3. Genearte a csv:                          generate_csv()
-#                                              - get_stat()
-# 4. Generate a graph                         generate_plot()
 def process_ind_plate(fix_x, fix_y, fix_z, filename):
+    """Takes in the filenames for the fixture and plate and generates both the
+    csv and pdf of the thickness of the plates
+
+    Args:
+        fix_x (list of float): x coordinates of the fixture
+        fix_y (list of float): y coordinates of the fixture
+        fix_z (list of float): z coordinates of the fixture
+        filename (str): filename to save to
+    """
     print("In IND_PLATE: {}".format(filename))
+
     # 1. Extract values from fixture and plate
     plate_x, plate_y, plate_z = extract_xyz(
         filename)  # ../raw_xyz/C3-69-12345-6-P21-1.xyz
@@ -194,12 +198,15 @@ def process_ind_plate(fix_x, fix_y, fix_z, filename):
     # 4. Generate the plot
     generate_plot(plate_x, plate_y, thickness_z_list, g_output_path +
                   '/' + filename)  # ../outputs/C3-69-12345-6-P21-1.pdf
-    # end process_plate()
+# end process_plate()
 
-
-# This function takes in the plate filename and uses reportlabs to generate and
-# save the actual PDF report in the reports directory.
 def generate_pdf(filename):
+    """Takes in the plate filename and uses reportlabs to generate and save the
+    PDF report in the reports directory
+
+    Args:
+        filename (str): filename of the report
+    """
     csv_fullpath = g_output_path + '/' + filename + '.csv'  # change windows
     heatmap_fullpath = g_output_path + '/' + filename + '_heatmap.png'
     histo_fullpath = g_output_path + '/' + filename + '.png'
@@ -316,9 +323,19 @@ def generate_pdf(filename):
         t.drawOn(can, 110, h/2)
 
     can.save()
+# generate_pdf()
 
-# Allows you to run the above function from the GUI
 def run_from_gui(fixture_path, raw_xyz_path, output_path, report_path, name):
+    """Runs the functions for processing through the GUI
+
+    Args:
+        fixture_path (str): path to the fixture file
+        raw_xyz_path (str): path to the directory containing the plate files
+        output_path (str): path to store the heatmap, histogram, and csv
+        report_path (str): path to store the generated report
+        name (str): Name of the person who scanned the plate. This will appear
+        on the report
+    """
     # Create Global
     global g_fixture_path
     g_fixture_path = fixture_path
@@ -335,7 +352,10 @@ def run_from_gui(fixture_path, raw_xyz_path, output_path, report_path, name):
 
     # Iterate through the files
     for filename in os.listdir(raw_xyz_path):
-        if filename == '.DS_Store' or filename == 'fixture.xyz':
+        file_ext = os.path.splitext(filename)[1]
+
+        if filename == '.DS_Store' or filename == 'fixture.xyz' or file_ext != '.xyz':
+            print('continued file: {} with extention: {}'.format(filename, file_ext))
             continue
         print('Processing: {}'.format(os.path.splitext(filename)[0]))
         print('Testing for rawpath={}'.format(raw_xyz_path))
