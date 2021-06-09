@@ -10,7 +10,12 @@ from PIL import Image
 from datetime import date
 from csv import reader
 from reportlab.lib.units import inch
-import tkinter as tk
+
+try:
+    import Tkinter as tk
+except ImportError:
+    import tkinter as tk
+    
 from tkinter import filedialog
 from tkinter import messagebox
 
@@ -48,7 +53,7 @@ def extract_xyz(filename):
         with open(filename) as f:
             for line in f.readlines():
                 # print(line)
-                line = line.split(' ')
+                line = line.split(',')
                 xyz_list.append((line[0], line[1], line[2]))  # x,y,z format
                 x_list.append(float(line[0]))
                 y_list.append(float(line[1]))
